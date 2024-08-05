@@ -1,0 +1,64 @@
+<html>
+
+<body>
+    <h1>Reflex Agent</h1>
+
+    <div style="display: inline-block; padding-right: 50px; overflow-y: scroll; height: 900px;">
+        <div id="log">
+            <h2>Log:</h2>
+        </div>
+    </div>
+
+    <div style="display: inline-block; overflow-y: scroll; height: 900px; padding-right: 50px;">
+        <div id="states">
+            <h2>States [Pos. | A | B]</h2>
+            </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    function reflex_agent(location, state){
+        if (state=="DIRTY") return "CLEAN";
+        else if (location=="A") return "RIGHT";
+        else if (location=="B") return "LEFT";
+    }
+
+    function test(states){
+            var location = states[0];		
+            var state = states[0] == "A" ? states[1] : states[2];
+            var action_result = reflex_agent(location, state);
+            document.getElementById("log").innerHTML+="<br>Location: ".concat(location).concat(" | Action: ").concat(action_result);
+            if (action_result == "CLEAN"){
+                if (location == "A"){
+                    states[1] = "CLEAN";
+                }else if (location == "B"){
+                    states[2] = "CLEAN";
+                }
+            }else if (action_result == "RIGHT"){
+                states[0] = "B";
+            }else if (action_result == "LEFT"){
+                states[0] = "A";		
+            }
+            document.getElementById("states").innerHTML+= `${states[0]} | ${states[1]} | ${states[2]}`
+            if (states[1] == "CLEAN" && states[2] == "CLEAN"){
+                const random = Math.floor(Math.random() * 2);
+                switch(random){
+                case 0:
+                    states[1] = "DIRTY";
+                    break;
+                case 1:
+                    states[2] = "DIRTY";
+                    break;
+                }
+                document.getElementById("states").innerHTML+= ` -> ${states[0]} | ${states[1]} | ${states[2]}`
+            } 
+            document.getElementById("states").innerHTML+= "<br>"
+            setTimeout(function(){ test(states); }, 1000);
+    }
+
+    var states = ["A","DIRTY","DIRTY"];
+    document.getElementById("states").innerHTML+= `${states[0]} | ${states[1]} | ${states[2]} (starting position)<br>`
+    test(states);
+</script>
+
+</html>
