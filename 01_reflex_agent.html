@@ -12,7 +12,12 @@
     <div style="display: inline-block; overflow-y: scroll; height: 900px; padding-right: 50px;">
         <div id="states">
             <h2>States [Pos. | A | B]</h2>
-            </div>
+        </div>
+    </div>
+    <div style="display: inline-block; overflow-y: scroll; height: 900px; padding-right: 50px;">
+        <div id="visited">
+            <h2>Estados visitados:</h2>
+        </div>
     </div>
 </body>
 
@@ -22,6 +27,7 @@
         else if (location=="A") return "RIGHT";
         else if (location=="B") return "LEFT";
     }
+
 
     function test(states){
             var location = states[0];		
@@ -39,9 +45,17 @@
             }else if (action_result == "LEFT"){
                 states[0] = "A";		
             }
-            document.getElementById("states").innerHTML+= `${states[0]} | ${states[1]} | ${states[2]}`
+            document.getElementById("states").innerHTML+=`${states[0]} | ${states[1]} | ${states[2]}`
+            if (!states_visited.has(states.join(','))) {
+                states_visited.add(states.join(','));
+                document.getElementById("visited").innerHTML+=`${states.join(",")}<br>`
+            }
             if (states[1] == "CLEAN" && states[2] == "CLEAN"){
-                const random = Math.floor(Math.random() * 2);
+                if (states_visited.size == 8){
+                    document.getElementById("log").innerHTML+="<br>Se han visitado los 8 estados";
+                    return;
+                }
+                const random = Math.floor(Math.random() * 3);
                 switch(random){
                 case 0:
                     states[1] = "DIRTY";
@@ -49,15 +63,30 @@
                 case 1:
                     states[2] = "DIRTY";
                     break;
+                case 2:
+                    states[1] = "DIRTY";
+                    states[2] = "DIRTY";
+                    break;
                 }
                 document.getElementById("states").innerHTML+= ` -> ${states[0]} | ${states[1]} | ${states[2]}`
+                if (!states_visited.has(states.join(','))) {
+                    states_visited.add(states.join(','));
+                    document.getElementById("visited").innerHTML+=`${states.join(",")}<br>`;
+                }
+                if (states_visited.size == 8){
+                    document.getElementById("log").innerHTML+="<br>Se han visitado los 8 estados";
+                    return;
+                }
             } 
+            console.log(states_visited)
             document.getElementById("states").innerHTML+= "<br>"
             setTimeout(function(){ test(states); }, 1000);
     }
 
     var states = ["A","DIRTY","DIRTY"];
     document.getElementById("states").innerHTML+= `${states[0]} | ${states[1]} | ${states[2]} (starting position)<br>`
+    document.getElementById("visited").innerHTML+=`${states.join(",")}<br>`
+    var states_visited = new Set([states.join(',')])
     test(states);
 </script>
 
