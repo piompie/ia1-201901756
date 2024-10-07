@@ -1,0 +1,101 @@
+<html>
+
+<body>
+    <h1>Algoritmo genético</h1>
+    <div id="log"></div>
+</body>
+
+<script>
+    
+    // floor absolute value 
+    function flabs(n){
+        return Math.floor(Math.abs(n))
+    }
+
+    function successors(p1, p2){
+        const h1 = flabs((p1 + p2) / 2)
+        const h2 = flabs(2 * p1 - p2)
+        const h3 = flabs(p1 - p2)
+        const h4 = flabs(p1 * 1.2)
+        return [h1, h2, h3, h4]
+    }
+
+    function tournament(population, expected){
+        var winners = []
+        console.log(population,expected)
+        winners[0] = Math.abs(expected-population[0]) <= Math.abs(expected-population[1]) ? population[0] : population[1]
+        winners[1] = Math.abs(expected-population[2]) <= Math.abs(expected-population[3]) ? population[2] : population[3]
+        return winners
+    }
+
+    function replaceAndShuffle(parents, children){
+        const newPopulation = parents.concat(children);
+        for (let i = newPopulation.length - 1; i > 0; i--) {
+            const j = flabs(Math.random()) * (i + 1);
+            [newPopulation[i], newPopulation[j]] = [newPopulation[j], newPopulation[i]];
+        }
+        return newPopulation;
+    }
+
+    function getConvergence(population,expected, threshold){
+        return population.reduce((acc, curr) => Math.abs(expected-acc) + Math.abs(expected-curr), 0);
+        //return Math.abs(average - expected) / expected <= threshold;
+    }
+
+    function genetic(expected){
+
+        // cantidad de individuos en la población
+        const individuals = 4 
+        // numero máximo de iteraciones
+        const maxIter = 15
+        // convergencia
+        const convergenceThreshold = 0.05
+        // número maximo para la generación inicial de la población
+        const max = parseInt('9'.repeat(expected.length))
+        // número esperado
+        const exp = parseInt(expected)
+        document.getElementById("log").innerHTML+=`Objetivo: ${expected}`
+        
+        var population = []
+        for (var i = 0; i < individuals; i++){
+            population[i] = flabs((Math.random()) * max + 1)
+        }
+
+        let generation = 0
+        let hasConverged = false
+        let prev = -1
+        while (generation < maxIter && !hasConverged) {
+            document.getElementById("log").innerHTML+=`<br>Generación ${generation+1}: ${population.join(", ")}<br>`
+            const parents = tournament(population,expected)
+            document.getElementById("log").innerHTML+=`Padres: ${parents.join(", ")}<br>`
+            const succ = successors(parents[0], parents[1])
+            document.getElementById("log").innerHTML+=`Hijos: ${succ.join(", ")}<br>`
+            const children = tournament(succ, expected)
+            document.getElementById("log").innerHTML+=`Hijos seleccionados: ${children.join(", ")}<br>`
+            population = replaceAndShuffle(parents, children)
+            const curr = getConvergence(population, exp, convergenceThreshold)
+            document.getElementById("log").innerHTML+=`Nueva población: ${population.join(", ")}<br>`
+            if (prev !== -1) {
+                let relativeChange = (Math.abs((curr - prev) / prev));
+                hasConverged =String(relativeChange) == '0' || Math.abs(1-relativeChange) <= convergenceThreshold ;
+                document.getElementById("log").innerHTML += `Convergencia: ${relativeChange}<br>`;
+            }
+            prev = curr
+            generation++
+        }
+
+        if (hasConverged) {
+            document.getElementById("log").innerHTML+=`Convergencia alcanzada en la generación ${generation}`
+        } else {
+            document.getElementById("log").innerHTML+=`No se alcanzó la convergencia en ${maxIter} iteraciones`
+        }
+        
+    }
+
+    var num = prompt("Enter an integer to search for:")
+    while (isNaN(num)) {
+        num = prompt("Please enter a valid integer to search for:")
+    }
+    genetic(num)
+</script>
+</html>
